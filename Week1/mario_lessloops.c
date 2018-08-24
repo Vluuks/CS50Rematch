@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
         for(int j = 0; j < h + 1; j++) {
             
             if(j < (h - (i + 1))) {
-            printf("_");
+                printf("_");
             }
             else if(j >= (h - (i + 1))) {
                 printf("#");
