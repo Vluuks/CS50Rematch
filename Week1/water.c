@@ -3,7 +3,7 @@
 
 int main(void) {
     
-    int minutes = GetInt();
+    int minutes = get_int();
     printf("%i\n", minutes * 12);
 
 }
