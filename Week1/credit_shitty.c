@@ -2,24 +2,21 @@
 #include <cs50.h>
 #include <math.h>
 #include <string.h>
+#include <stdlib.h>
 
 int main(void) {
 
     printf("Number:");
-    string ccno = get_string();
-    int sum = 0;
+    long ccno_long = get_long_long();
 
-// American Express uses 15-digit numbers, MasterCard uses 16-digit numbers, and Visa uses 13- and 16-digit numbers.
-// American Express numbers all start with 34 or 37;
-// MasterCard numbers all start with 51, 52, 53, 54, or 55; and Visa numbers all start with 4.
-    // check types
-
-
+    // make string from long
+    char ccno[20];
+    sprintf(ccno, "%ld", ccno_long);
 
     // get length and first two numbers then cast to int
-    // wtf is this even
     int len = strlen(ccno);
 
+    // get first two digits
     // 3 because needs space for the null terminator
     char tmp_str[3];
     sprintf(tmp_str, "%c%c", ccno[0], ccno[1]);
@@ -44,20 +41,27 @@ int main(void) {
         return 0;
     }
 
+    // if even, append 0 to start
+    // space for terminator and 0
+    char ccno_cp[len+2];
+    if(len % 2 == 0) {
+        ccno_cp[0] = '0';
+        strcat(ccno_cp, ccno);
+    }
 
-    for(int i = 0; i < len; i++) {
+    int sum = 0;
+    for(int i = 0; i < strlen(ccno_cp); i++) {
 
         // make digit from char (atoi is for strings only?)
-        int digit = ccno[i] - '0';
+        int digit = ccno_cp[i] - '0';
 
-        // every other digit
+        // if index is not even
         if(i % 2 != 0) {
             // multiply by 2
             int prod = digit * 2;
 
             // if the product is 10 or higher, split and add
             if(prod > 9) {
-                // can also do plus 1 but tmp/10 is always 1? idk what is better anyway
                 prod = (prod % 10) + prod / 10;
             }
             // add to total
@@ -66,7 +70,6 @@ int main(void) {
         else {
             sum += digit;
         }
-
     }
 
     if(sum % 10 == 0) {
