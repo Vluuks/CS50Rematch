@@ -7,7 +7,6 @@ int main(int argc, char* argv[]) {
 
     int shift;
 
-    // Check arguments
     if(argc != 2) {
         printf("Provide one argument.");
         return 1;
@@ -17,7 +16,8 @@ int main(int argc, char* argv[]) {
         printf("Text to encrypt: ");
     }
 
-    // Get user input
+
+    // get user input
     string toConvert;
     int len;
     do {
@@ -26,8 +26,10 @@ int main(int argc, char* argv[]) {
     }
     while(len == 0);
 
-    // Convert
+    // convert
     char converted[len + 1];
+    converted[len] = '\0';
+    
     for(int i = 0; i < len; i++) {
 
         char c = toConvert[i];
@@ -46,7 +48,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // Output ciphertext
+    // output ciphertext
     printf("ciphertext: %s\n", converted);
     return 0;
 }
