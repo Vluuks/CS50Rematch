@@ -7,32 +7,6 @@
 #include "helpers.h"
 
 #define COMP_OCTAVE 4
-#define COMP_NOTE 'A'
-// Converts a fraction formatted as X/Y to eighths
-// int duration(string fraction)
-// {
-//     char some[2];
-//     some[0] = fraction[0];
-//     some[1] = '\0';
-//     int ffs_some = atoi(some);
-
-//     char eights[2];
-//     eights[0] = fraction[2];
-//     eights[1] = '\0';
-//     int ffs_eights = atoi(eights);
-
-//     if(ffs_some > 1) {
-//         return ffs_some;
-//     }
-//     else {
-//         switch(ffs_eights) {
-//             case 8: return 1;
-//             case 4: return 2;
-//             case 2: return 4;
-//         }
-//     }
-//     return atoi("FUCK THIS");
-// }
 
 int duration(string fraction)
 {
@@ -61,8 +35,8 @@ int frequency(string note)
 
     // correct the octave based location
     // use note's alphahet index to make array function like dict
-    //                   KEY    A  B   C   D   E   F   G
-    //                 INDEX    0  1,  2,  3,  4,  5,  6
+//                 KEY    A  B   C   D   E   F   G
+//               INDEX    0  1,  2,  3,  4,  5,  6
     int corrections[] = { 0, 2, -9, -7, -5, -4, -2};
     int distance_correction = corrections[note[0] - 'A'];
 
