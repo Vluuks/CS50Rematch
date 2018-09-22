@@ -76,18 +76,14 @@ int main(int argc, char *argv[])
     int padding_new = (4 - (bi_new.biWidth * sizeof(RGBTRIPLE) % 4)) % 4;
     bi_new.biSizeImage = abs(bi_new.biHeight) * ((bi_new.biWidth * sizeof(RGBTRIPLE)) + padding_new);
 
+    // BITMAPFILEHEADER THINGS
+    bf_new.bfSize = bi_new.biSizeImage + sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+
     // write outfile's BITMAPFILEHEADER
     fwrite(&bf_new, sizeof(BITMAPFILEHEADER), 1, outptr);
 
     // write outfile's BITMAPINFOHEADER
     fwrite(&bi_new, sizeof(BITMAPINFOHEADER), 1, outptr);
-
-
-
-    // BITMAPFILEHEADER THINGS
-    bf_new.bfSize = bi_new.biSizeImage + sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
-
-
 
     // determine padding of old image for scanlines
     int padding_old = (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
