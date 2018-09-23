@@ -7,6 +7,13 @@
 
     Version 1 with the extra loop and no array to store previous scanline.
 
+    This version also demonstrates the way the headers can be written to the file.
+    Since the file header comes before the infoheader but its contents depend on
+    the latter, this sometimes goes wrong. Solution is to do it at the end but with
+    usage of fseek and skipping back and forth you can also do it this way. It is 
+    not very elegant imo but it can help to understand why it does not work if
+    you write the infoheader before the fileheader.
+
 */
 
 #include <stdio.h>
@@ -76,11 +83,22 @@ int main(int argc, char *argv[])
     bi_new.biHeight *= factor;
     int padding_new = (4 - (bi_new.biWidth * sizeof(RGBTRIPLE) % 4)) % 4;
     bi_new.biSizeImage = abs(bi_new.biHeight) * ((bi_new.biWidth * sizeof(RGBTRIPLE)) + padding_new);
+
+    // skip room that would be reserved for file header
+    // then write the infoheader's contents
+    // this is clunky on purpose but just to show how you could do this
+    fseek(outptr, sizeof(BITMAPFILEHEADER), SEEK_CUR);
     fwrite(&bi_new, sizeof(BITMAPINFOHEADER), 1, outptr);
 
     // write new data to the BITMAPFILEHEADER
     bf_new.bfSize = bi_new.biSizeImage + sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+
+    // write to file (file header comes before infoheader!)
+    // so we need to go back, add it
+    // and then skip again over the infoheader's part to get to the proper start of the BMP
+    fseek(outptr, -(sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER)), SEEK_CUR);
     fwrite(&bf_new, sizeof(BITMAPFILEHEADER), 1, outptr);
+    fseek(outptr, sizeof(BITMAPINFOHEADER), SEEK_CUR);
 
     // determine padding of old image for scanlines
     int padding_old = (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
