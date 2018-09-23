@@ -1,10 +1,17 @@
-// Copies a BMP file
+/*
+    resize.c 
+    CS50x "Rematch" 2018
+
+    Resizes a BMP image (to a larger size) by a given factor. Resizing is done
+    both horizontally and vertically by repeating scanlines as necessary.
+
+    Version 1 with the extra loop and no array to store previous scanline. 
+
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "bmp.h"
-#define BYTES_IN_WORD
 
 int main(int argc, char *argv[])
 {
@@ -59,45 +66,28 @@ int main(int argc, char *argv[])
     BITMAPFILEHEADER bf_new = bf;
     BITMAPINFOHEADER bi_new = bi;
 
-    // BITMAPINFOHEADER THINGS
-
-    // without padding
+    // write new data to the BITMAPINFOHEADER
     bi_new.biWidth *= factor;
     bi_new.biHeight *= factor;
-
-    // with padding
-    // padding is amount of bytes needed to make scanline bytes fit in a word
-    // a multitude of 4 bytes cause a word = 32 bits = 4 bytes.
-    // the padding it thus max 3 and min 1 byte
-    // since if we added 4 then it would already fit
-    // this is why the second modulo is there
-    // so that in the event that the bytes are a perfect multitude of 4
-    // we dont need to add padding because (4-0) % 4 = 0
     int padding_new = (4 - (bi_new.biWidth * sizeof(RGBTRIPLE) % 4)) % 4;
     bi_new.biSizeImage = abs(bi_new.biHeight) * ((bi_new.biWidth * sizeof(RGBTRIPLE)) + padding_new);
-
-    // BITMAPFILEHEADER THINGS
-    bf_new.bfSize = bi_new.biSizeImage + sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
-
-    // write outfile's BITMAPFILEHEADER
-    fwrite(&bf_new, sizeof(BITMAPFILEHEADER), 1, outptr);
-
-    // write outfile's BITMAPINFOHEADER
     fwrite(&bi_new, sizeof(BITMAPINFOHEADER), 1, outptr);
+
+    // write new data to the BITMAPFILEHEADER
+    bf_new.bfSize = bi_new.biSizeImage + sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+    fwrite(&bf_new, sizeof(BITMAPFILEHEADER), 1, outptr);
 
     // determine padding of old image for scanlines
     int padding_old = (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
 
     // iterate over infile's scanlines
-    for (int i = 0, biHeight = abs(bi.biHeight); i < biHeight; i++)
-    {
+    for (int i = 0, biHeight = abs(bi.biHeight); i < biHeight; i++) {
 
         // repeat vertically
         for(int z = 0; z < factor; z++) {
 
             // iterate over pixels in scanline
-            for (int j = 0; j < bi.biWidth; j++)
-            {
+            for (int j = 0; j < bi.biWidth; j++) {
                 // temporary storage
                 RGBTRIPLE triple;
 
@@ -106,8 +96,7 @@ int main(int argc, char *argv[])
 
                 // repeat k times for factor
                 // this will increase the image size in horizontal sense
-                for(int k = 0; k < factor; k++)
-                {
+                for(int k = 0; k < factor; k++) {
                     // write RGB triple to outfile
                     fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
                 }
@@ -121,8 +110,7 @@ int main(int argc, char *argv[])
             }
 
             // write padding to end of this line in new file
-            for (int k = 0; k < padding_new; k++)
-            {
+            for (int k = 0; k < padding_new; k++) {
                 fputc(0x00, outptr);
             }
 
