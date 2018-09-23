@@ -67,8 +67,10 @@ int main(int argc, char *argv[])
 
     // iterate over infile's scanlines
     for (int i = 0, biHeight = abs(bi.biHeight); i < biHeight; i++) {
+        
         // iterate over pixels in scanline
         for (int j = 0; j < bi.biWidth; j++) {
+            
             // temporary storage
             RGBTRIPLE triple;
 
@@ -76,21 +78,21 @@ int main(int argc, char *argv[])
             fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
 
             // if it's red, make it cyan
-            if(triple.rgbtRed == 0xff) {
+            if (triple.rgbtRed == 0xff) {
                 triple.rgbtRed = 0x00;
                 triple.rgbtBlue = 0xff;
                 triple.rgbtGreen = 0xff;
             }
 
             // make everything that is not background black, so the very light blue text
-            if(triple.rgbtRed != 0x00 && triple.rgbtBlue == 0xff && triple.rgbtGreen == 0xff) {
+            if (triple.rgbtRed != 0x00 && triple.rgbtBlue == 0xff && triple.rgbtGreen == 0xff) {
                 triple.rgbtRed = 0x00;
                 triple.rgbtBlue = 0x00;
                 triple.rgbtGreen = 0x00;
             }
 
             // make background white
-            if(triple.rgbtRed == 0x00 && triple.rgbtBlue == 0xff && triple.rgbtGreen == 0xff) {
+            if (triple.rgbtRed == 0x00 && triple.rgbtBlue == 0xff && triple.rgbtGreen == 0xff) {
                 triple.rgbtRed = 0xff;
             }
 
