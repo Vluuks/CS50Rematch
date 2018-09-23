@@ -1,15 +1,21 @@
-// Copies a BMP file
+/*
+    whodunit.c 
+    CS50x "Rematch" 2018
+
+    Copies a BMP file, but makes adjustment when pixels are red. After changing them from 
+    red to cyan, the resulting very light blue pixels are made black. Then finally the cyan
+    background is made white, so that even Tim in all his colorblind glory can see who did it.
+
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "bmp.h"
 
 int main(int argc, char *argv[])
 {
     // ensure proper usage
-    if (argc != 3)
-    {
+    if (argc != 3) {
         fprintf(stderr, "Usage: copy infile outfile\n");
         return 1;
     }
@@ -20,16 +26,14 @@ int main(int argc, char *argv[])
 
     // open input file
     FILE *inptr = fopen(infile, "r");
-    if (inptr == NULL)
-    {
+    if (inptr == NULL) {
         fprintf(stderr, "Could not open %s.\n", infile);
         return 2;
     }
 
     // open output file
     FILE *outptr = fopen(outfile, "w");
-    if (outptr == NULL)
-    {
+    if (outptr == NULL) {
         fclose(inptr);
         fprintf(stderr, "Could not create %s.\n", outfile);
         return 3;
@@ -45,8 +49,7 @@ int main(int argc, char *argv[])
 
     // ensure infile is (likely) a 24-bit uncompressed BMP 4.0
     if (bf.bfType != 0x4d42 || bf.bfOffBits != 54 || bi.biSize != 40 ||
-        bi.biBitCount != 24 || bi.biCompression != 0)
-    {
+        bi.biBitCount != 24 || bi.biCompression != 0) {
         fclose(outptr);
         fclose(inptr);
         fprintf(stderr, "Unsupported file format.\n");
@@ -63,11 +66,9 @@ int main(int argc, char *argv[])
     int padding = (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
 
     // iterate over infile's scanlines
-    for (int i = 0, biHeight = abs(bi.biHeight); i < biHeight; i++)
-    {
+    for (int i = 0, biHeight = abs(bi.biHeight); i < biHeight; i++) {
         // iterate over pixels in scanline
-        for (int j = 0; j < bi.biWidth; j++)
-        {
+        for (int j = 0; j < bi.biWidth; j++) {
             // temporary storage
             RGBTRIPLE triple;
 
@@ -81,8 +82,7 @@ int main(int argc, char *argv[])
                 triple.rgbtGreen = 0xff;
             }
 
-            // make "white" black
-            // make everything that is not background black
+            // make everything that is not background black, so the very light blue text
             if(triple.rgbtRed != 0x00 && triple.rgbtBlue == 0xff && triple.rgbtGreen == 0xff) {
                 triple.rgbtRed = 0x00;
                 triple.rgbtBlue = 0x00;
@@ -98,19 +98,14 @@ int main(int argc, char *argv[])
             fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
         }
 
-
-
         // skip over padding, if any
         fseek(inptr, padding, SEEK_CUR);
 
         // then add it back (to demonstrate how)
-        for (int k = 0; k < padding; k++)
-        {
+        for (int k = 0; k < padding; k++) {
             fputc(0x00, outptr);
         }
     }
-
-
 
     // close infile
     fclose(inptr);
