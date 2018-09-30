@@ -1,4 +1,10 @@
-// Implements a dictionary's functionality
+/*
+    dictionary.c
+    CS50x "Rematch" 2018
+
+    Loads a dictionary from a given text file into a data structure, in this case trie.
+
+*/
 
 #include <stdbool.h>
 #include <cs50.h>
@@ -15,9 +21,10 @@
 void testeroni();
 
 /*
-    The node contains whether this letter is also
-    the last letter of an existing word, and an array of node pointers which,
-    if they exist, in turn contain the same information.
+    The node contains whether this letter is also the last letter of an existing word,
+    and an array of node pointers which, if they exist, in turn contain the same information.
+    The letter's location is inferred from the array index where a = 0 and z = 25. The apostrophe
+    is stored in index 26.
 */
 typedef struct node
 {
@@ -96,30 +103,18 @@ bool load(const char *dictionary) {
                     unload();
                     return false;
                 }
-
-                node* bla = current->children[index];
-
-                // move to next thing
-
-
             }
 
-            // // if it's the last character, indicate that if you got until here
-            // // the sequence of characters forms a word
-            // if(i == strlen(new_word) - 1) {
-            //     current->is_word = true;
-            // }
-            // // if it's not the last, create the node and go to next
-            // else {
+            // once we can be sure that it exists
+            node* temp = current->children[index];
 
-            //     // if it does exist, go to next letter in the word
-            //     // inside the children array
-            //     int index = tolower(new_word[i+1]) - 'a';
-            //     printf("%i\n", index);
-            //     current = current->children[tolower(new_word[i+1]) - 'a'];
-            // }
+            // set it to true if last character
+            if(i == strlen(new_word) - 1) {
+                temp->is_word = true;
+            }
 
-
+            // move on to next
+            current = temp;
         }
 
 		dict_size++;
@@ -156,10 +151,35 @@ void testeroni() {
     for(int i = 0; i < 27; i++) {
 
         if(root->children[i] == NULL) {
-            printf("%i NULL\n", i);
+            printf("%c NULL\n", i + 'a');
         }
         else {
-            printf("%i exists\n", i);
+
+            // the root's child exists at location i
+            printf("%c exists\n", i + 'a');
+
+            // now to check inside that particular child
+            node* cursor = root->children[i];
+            for(int j = 0; j < 27; j++) {
+
+                // the cursor's child exists at location j
+                if(cursor->children[j] != NULL) {
+
+                    printf("%c 2nd tier exists\n", j + 'a');
+
+                    // check if this child itself has children
+                    node* cursor2 = cursor->children[j];
+                    for(int k = 0; k < 27; k++) {
+
+                        // 2rd tier children
+                        if(cursor2->children[k] != NULL) {
+                            printf("%c 3rd tier exists\n", k + 'a');
+                        }
+                    }
+                }
+            }
         }
+
+        printf("------- next word\n");
     }
 }
