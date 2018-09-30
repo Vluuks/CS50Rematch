@@ -1,21 +1,38 @@
-// Implements a dictionary's functionality
+/*
+    dictionary.c 
+    CS50x "Rematch" 2018
+
+    Loads a dictionary from a given text file into a data structure, in this case a hash table with
+    a linked list behind every index. The hash is determined based on the word (case insensitive) by
+    the djb2 hash function (http://www.cse.yorku.ca/~oz/hash.html). Check performs a check on each word
+    in a text file, hashing it then comparing it against each word in the respective bucket's linked
+    list. Finally, memory used to store the linked list is freed up.
+
+    Compiler settings were adjusted to promote speed. Average performance 0.10 s on La La Land. I have
+    no clue if that is fast or not but since my first try three years ago took at least 20 seconds I'll 
+    roll with it.
+*/
 
 #include <stdbool.h>
 #include <cs50.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#include <strings.h>
+#include <strings.h> // strcasecmp is in this one
 
 #include "dictionary.h"
 
 #define TABLE_SIZE 8192
 
-// Prototypes
+// prototypes
 void testeroni();
 unsigned long hash(const char* word);
 
-// Create the node struct
+/* 
+    The node struct, node is mentioned on the first line because
+    the struct itself contains it so the name needs to be known
+    before that, rather than just at the end.
+*/
 typedef struct node
 {
     char word[LENGTH + 1];
@@ -28,14 +45,18 @@ node* hashtable[TABLE_SIZE];
 unsigned int dict_size = 0;
 
 
-// Returns true if word is in dictionary else false
+/*
+    Returns true if word is in dictionary else false. Takes a word, hashes
+    it and then traverses the bucket's linked list to see if there is a 
+    matching word inside. Case insensitive due to among other things strcasecmp. 
+*/
 bool check(const char *word) {
 
     int bucket = hash(word);
     node* current = hashtable[bucket];
 
-    // if you use current->next then if there is only one
-    // or it is the last it will never go inside
+    // if you use current->next, then if there is only one
+    // or it is the last it will never go inside the while
     while(current != NULL) {
 
         if(strcasecmp(word, current->word) == 0) {
@@ -126,7 +147,6 @@ bool unload(void) {
 unsigned long hash(const char* word) {
 
     unsigned long hash = 5381;
-
     for(int i = 0; i < strlen(word); i++) {
         hash = ((hash << 5) + hash) + tolower(word[i]);
     }
