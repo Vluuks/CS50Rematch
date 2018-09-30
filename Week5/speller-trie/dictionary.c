@@ -15,7 +15,18 @@
 
 #include "dictionary.h"
 
-#define ARRAY_SIZE 27
+
+// lazy apotrophe solution
+#define ARRAY_SIZE 33
+
+/*
+    This is a piece of art. No just kidding. Gives back 0 for the apostrophe and
+    6~ onward for the letters.
+*/
+int make_index(char c) {
+    return ((tolower(c) - 'a') % 26) + 6;
+}
+
 
 // Prototypes
 void testeroni();
@@ -45,17 +56,17 @@ unsigned int dict_size = 0;
 */
 bool check(const char *word) {
 
-    printf("Checking: %s\n", word);
+    // printf("Checking: %s\n", word);
 
     // iterate over the letters in the word, starting at root
     node* cursor = root;
     for(int i = 0; i < strlen(word); i++) {
 
         // get index for letter
-        char c = tolower(word[i]);
-        int index = c - 'a';
+        // char c = tolower(word[i]);
+        int index = make_index(word[i]);
 
-        printf("Checking: %c\n", c);
+        // printf("Checking: %c\n", c);
 
         // check child of cursor for that letter
         cursor = cursor->children[index];
@@ -64,15 +75,7 @@ bool check(const char *word) {
         if(cursor != NULL) {
 
             if(i == strlen(word) - 1) {
-                // return cursor->is_word;
-
-                if(cursor->is_word){
-                    printf("Correct! %s\n", word);
-                    return true;
-                }
-                else {
-                    return false;
-                }
+                return cursor->is_word;
             }
 
         }
@@ -80,16 +83,15 @@ bool check(const char *word) {
         // this can perhaps be removed later on but now here for understanding
         // if it does not even exist, it can never be right
         else {
-            printf("FALSE: %c does not exist as child.\n", word[i]);
+            // printf("FALSE: %c does not exist as child.\n", word[i]);
             return false;
         }
 
     }
 
-
-
     return false;
 }
+
 
 /*
     Loads dictionary into memory, returning true if successful else false.
@@ -110,29 +112,22 @@ bool load(const char *dictionary) {
     char new_word[LENGTH + 1];
     while(fscanf(infile, "%s", new_word) != EOF) {
 
-        // printf("%s", new_word);
-
         // get reference in the root
         node* current = root;
-        //->children[tolower(new_word[0]) - 'a'];
 
         // iterate over letters in word
         for(int i = 0; i < strlen(new_word); i++) {
 
-            // printf("%c\n", new_word[i]);
-
             // if the node at that location does not exist yet
             // (meaning we haven't constructed a word in this fashion)
-            int index = tolower(new_word[i]) - 'a';
+            int index = make_index(new_word[i]);
             if(current->children[index] == NULL) {
 
-                // printf("making new node\n");
-
-                // allocate memory for a new node
-                // at the current location in the trie
-                // which is a particular child
+                // allocate memory for a new node at the current location in the trie
+                // which is a particular child inside the children array
                 current->children[index] = malloc(sizeof(node));
 
+                // verify that it succeeded
                 if(current == NULL) {
                     unload();
                     return false;
@@ -144,11 +139,11 @@ bool load(const char *dictionary) {
 
             // set it to true if last character
             if(i == strlen(new_word) - 1) {
-                printf("Last char, setting true: %c . \n", new_word[i]);
+                // printf("Last char, setting true: %c . \n", new_word[i]);
                 temp->is_word = true;
             }
 
-            // move on to next
+            // move on to next, setting current to the one we  just created
             current = temp;
         }
 
@@ -156,7 +151,7 @@ bool load(const char *dictionary) {
 
     }
 
-    testeroni();
+    // testeroni();
     fclose(infile);
     return true;
 }
@@ -177,13 +172,11 @@ bool unload(void) {
 }
 
 /*
-    Prints contents of 1st node of each hashtable index. Can be used for
-    a small check to see if words are inserted at the very least. And if
-    the first word is the last one in the dictionary (if collision), since
-    we enter things at the front of the list rather than at the back.
+    Prints through very ineffective means the contents of the child indices of
+    the first 3 letters of a word.
 */
 void testeroni() {
-    for(int i = 0; i < 27; i++) {
+    for(int i = 0; i < 33; i++) {
 
         if(root->children[i] == NULL) {
             printf("%c NULL\n", i + 'a');
