@@ -32,19 +32,15 @@ unsigned int dict_size = 0;
 bool check(const char *word) {
 
     int bucket = hash(word);
-
     node* current = hashtable[bucket];
 
     // if you use current->next then if there is only one
     // or it is the last it will never go inside
     while(current != NULL) {
 
-        // printf("checking: %s\n", current->word);
         if(strcasecmp(word, current->word) == 0) {
             return true;
         }
-
-        // return !strcasecmp(word, current->word);
 
         // move on to the next node
         current = current->next;
@@ -53,7 +49,10 @@ bool check(const char *word) {
     return false;
 }
 
-// Loads dictionary into memory, returning true if successful else false
+/* 
+    Loads dictionary into memory, returning true if successful else false.
+    Uses a hash table with linked lists for each index in the table. 
+*/
 bool load(const char *dictionary) {
     // open file
     FILE *infile = fopen(dictionary, "r");
@@ -61,9 +60,8 @@ bool load(const char *dictionary) {
         return false;
     }
 
-    char new_word[LENGTH + 1];
-
     // read file line by line
+    char new_word[LENGTH + 1];
     while(fscanf(infile, "%s", new_word) != EOF) {
 
         // allocate memory for a new node
@@ -92,7 +90,6 @@ bool load(const char *dictionary) {
 
     }
 
-    // testeroni();
     fclose(infile);
     return true;
 }
@@ -101,7 +98,6 @@ bool load(const char *dictionary) {
     Returns number of words in dictionary if loaded else 0 if not yet loaded
 */
 unsigned int size(void) {
-    // TODO
     return dict_size;
 }
 
@@ -112,13 +108,11 @@ bool unload(void) {
     for(int i = 0; i < TABLE_SIZE; i++) {
 
         node* cursor = hashtable[i];
-
         while(cursor != NULL) {
             node *temp = cursor;
             cursor = cursor->next;
             free(temp);
         }
-
     }
 
     return true;
@@ -140,6 +134,12 @@ unsigned long hash(const char* word) {
     return hash % TABLE_SIZE;
 }
 
+/*
+    Prints contents of 1st node of each hashtable index. Can be used for
+    a small check to see if words are inserted at the very least. And if
+    the first word is the last one in the dictionary (if collision), since
+    we enter things at the front of the list rather than at the back.
+*/
 void testeroni() {
     for(int i = 0; i < TABLE_SIZE; i++) {
         printf("%s\n", hashtable[i]->word);
