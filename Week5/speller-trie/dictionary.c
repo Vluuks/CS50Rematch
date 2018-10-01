@@ -34,8 +34,10 @@ void testeroni();
 /*
     The node contains whether this letter is also the last letter of an existing word,
     and an array of node pointers which, if they exist, in turn contain the same information.
-    The letter's location is inferred from the array index where a = 0 and z = 25. The apostrophe
-    is stored in index 26.
+    The letter's location is inferred from the array index where ' = 0 and there are a few
+    empty spots, then a = 6. This is to avoid an if statement to check for an apostrophe
+    since that would be false in almost all the cases. In this way it just maps to an
+    index directly.
 */
 typedef struct node
 {
