@@ -10,10 +10,11 @@ def load_rooms(filename):
     with open(filename, "r") as f:
 
         # read file line by line
-        # Room(3, 'Inside building', 'You are inside a building, a well house for a large spring.')
         line_content = []
         options = []
         moves_start = False
+
+        # this is a very terrible implementation of parsing the file
         for line in f:
 
             # check if regular info or movement options
@@ -42,43 +43,43 @@ def won():
     """
     return False
 
+def move_print(player):
+    """
+    Print stuff for every move.
+    """
+    print("------------------")
+    print(player.current_room.name)
+    print(player.current_room.description)
+    print("Where do you want to go?")
+    for option in player.current_room.options:
+        print(option[0])
+
 def play(game):
     """
     Play an Adventure game
     """
     rooms = load_rooms(f"data/{game}Rooms.txt")
 
-    # Here we create a player object filled with some dummy variables.
-    player_1 = Player(42, "Player 1", rooms[0])
+    # here we create a player object filled with some dummy variables.
+    player_1 = Player(42, "Player 1", rooms)
     print(f"Welcome, {player_1.name}, to the Adventure games.\n"
         "May the randomly generated numbers be ever in your favour.\n")
 
-    # A collection of valid commands to be used in the player.move method.
+    # a collection of valid commands to be used in the player.move method.
     moves = set(["EAST", "WEST", "SOUTH", "IN", "OUT", "DOWN"])
 
-
-    # Prompt the user for commands until they've won the game.
+    # prompt the user for commands until they've won the game.
     while not won():
 
-        print("------------------")
-        print(player_1.current_room.name)
-        print(player_1.current_room.description)
-        print("Where do you want to go?")
-        for option in player_1.current_room.options:
-            print(option[0])
+        # print current location and options
+        move_print(player_1)
 
+        # prompt user for input
         command = input("> ")
 
         # if the move is allowed at all
         if command in moves:
-            # check with options in room
-            for option in player_1.current_room.options:
-
-                # if the option is present for that room as  well
-                if command == option[0]:
-                    print("\nMoving...")
-                    print(option[1])
-                    player_1.current_room = rooms[int(option[1]) - 1]
+            player_1.move(command)
         else:
             print("\nInvalid command!")
 

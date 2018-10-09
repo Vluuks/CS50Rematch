@@ -3,13 +3,14 @@ class Player(object):
     Representation of a player in Adventure
     """
 
-    def __init__(self, id, name, room):
+    def __init__(self, id, name, rooms):
         """
         Initialize a Player with an id and name.
         """
         self.id = id
         self.name = name
-        self.current_room = room
+        self.current_room = rooms[0]
+        self.rooms = rooms
 
     def move(self, command):
         """
@@ -18,8 +19,15 @@ class Player(object):
         Returns the room (a Room object) connected to said command
         Returns None if the command does not exist
         """
-        # TODO
-        pass
+        # check with options in room
+        for option in self.current_room.options:
+
+            # if the option is present for that room as  well
+            if command == option[0]:
+                print("\nMoving...")
+                print(option[1])
+                self.current_room = self.rooms[int(option[1]) - 1]
+                return self.current_room
 
     def inventory(self):
         """
