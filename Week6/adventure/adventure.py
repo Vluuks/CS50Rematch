@@ -1,4 +1,6 @@
 from room import Room
+from item import Item
+from inventory import Inventory
 
 class Adventure():
     """
@@ -11,19 +13,19 @@ class Adventure():
         Create rooms and items for the appropriate 'game' version.
         """
         self.rooms = self.load_rooms(f"data/{game}Rooms.txt")
+        self.load_items(f"data/{game}Items.txt")
+        self.inventory = Inventory()
         self.current_room = None
         self.play()
 
-
-    def load_rooms(self, filename):
+    def load_rooms(self, file_name):
         """
         Load rooms from filename.
         Returns a collection of Room objects.
         """
-        with open(filename, "r") as f:
-            rooms = []
+        with open(file_name, "r") as f:
 
-            # read file line by line
+            rooms = []
             line_content = []
             options = []
             moves_start = False
@@ -50,6 +52,14 @@ class Adventure():
 
         f.close()
         return rooms
+
+    def load_items(self, file_name):
+
+        with open(file_name, "r") as f:
+
+            # iterate over lines
+            for line in f:
+
 
     def won(self):
         """
@@ -87,6 +97,16 @@ class Adventure():
         TAKE <item> take item from the room.
         DROP <item> drop item from your inventory.""")
 
+
+    def look_print(self, a_room):
+        """
+        Print stuff that can be found in the room
+        """
+
+        # go over items in that room and print them
+        for item in a_room.items:
+            print(f"{item.name} {item.description}\n")
+
     def move_print(self, a_room):
         """
         Print stuff for every move.
@@ -119,7 +139,7 @@ class Adventure():
             command = input("> ")
 
             # check if in valid moves
-            moves = set(["EAST", "WEST", "SOUTH", "IN", "OUT", "DOWN", "UP", "HELP", "QUIT"])
+            moves = set(["EAST", "WEST", "SOUTH", "IN", "OUT", "DOWN", "UP", "LOOK", HELP", "QUIT"])
             if command in moves:
 
                 # quits the game
@@ -131,7 +151,10 @@ class Adventure():
                 elif command == "HELP":
                     self.help_print()
 
-                # it's another command
+                elif command == "LOOK":
+                    self.look_print()
+
+                # it's a movement command
                 else:
 
                     # check with current location's options
