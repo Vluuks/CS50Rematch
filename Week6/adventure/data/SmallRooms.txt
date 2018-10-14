@@ -93,7 +93,13 @@ FORCED     0
 
 12
 Debris room
-You are in a debris room filled with stuff washed in from the surface.  A low wide passage with cobbles becomes plugged with mud and debris here, but an extremely narrow canyon leads upward and west.  Unfortunately, the passage is blocked by a barrier marked "Under Construction."
+You are in a debris room filled with stuff washed in from the surface.  A low wide passage with cobbles becomes plugged with mud and debris here, but an extremely narrow canyon leads upward and west.
 -----
 EAST       9
+WEST       13
 
+13
+Victory
+You've found the hidden path to victory. Unfortunately, the passage is blocked by a barrier marked "Under Construction."
+-----
+FORCED     0
