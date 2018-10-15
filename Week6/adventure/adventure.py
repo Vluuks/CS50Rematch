@@ -67,11 +67,9 @@ class Adventure():
 
             # iterate over lines
             for line in f:
-                print(f"...{line}")
 
                 # append to contents or add to room
                 if line == "\n":
-                    print("zzzz")
                     items.append(Item(contents[0], contents[1], contents[2]))
                     contents = []
                 else:
@@ -79,7 +77,6 @@ class Adventure():
 
         # now add them to the right rooms
         for item in items:
-            print(item)
             room_index = int(item.room_id) - 1
             self.rooms[room_index].items.append(item)
 
@@ -134,6 +131,7 @@ class Adventure():
 
             # go over items in that room and print them
             for item in a_room.items:
+                print("\n")
                 print(item)
 
         else:
@@ -162,7 +160,6 @@ class Adventure():
         """
 
         print("\nMoving...")
-        print(f"To diection {option[0]} leading to room ID {option[1]}")
 
         # change rooms
         self.current_room = self.rooms[int(option[1]) - 1]
@@ -187,9 +184,11 @@ class Adventure():
 
                 # remove it from the room
                 self.current_room.items.remove(item)
+
+                print(f"\n{item.name.strip()} taken")
                 return
 
-        print("No such item exists!")
+        print("\nNo such item exists!")
 
 
     def player_drop(self, item_name):
@@ -207,9 +206,11 @@ class Adventure():
 
                 # remove it from the inventory
                 self.inventory.remove(item)
+
+                print(f"\n{item.name.strip()} dropped")
                 return
 
-        print("You do not have this item on you!")
+        print("\nYou do not have this item on you!")
 
 
     def play(self):
@@ -239,7 +240,7 @@ class Adventure():
 
                 # quits the game
                 if command == "QUIT":
-                    print("Thanks for playing!")
+                    print("\nThanks for playing!")
                     quit()
 
                 # generates help command info
@@ -250,7 +251,7 @@ class Adventure():
                     self.look_print(self.current_room)
 
                 else:
-                    print("Unkown command.")
+                    print("\nUnkown command.")
 
             # it's a movement command
             elif command in moves:
@@ -272,7 +273,6 @@ class Adventure():
                 # try to drop the item
                 elif (command.split())[0] == "DROP":
                     self.player_drop((command.split())[1])
-
 
             # command is not in the defined set
             else:
