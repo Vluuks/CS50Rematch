@@ -5,3 +5,4 @@ a set of keys
 LAMP
 a brightly shining brass lamp
 2
+

@@ -13,9 +13,11 @@ class Inventory(object):
 
     # adds an item to your list
     def add(self, item):
-        self.items.push(item)
+        print("adding?")
+        print(item)
+        self.items.append(item)
 
     # remove an item from the list, if you have it
-    def remove(self, item_name):
-        if item_name in self.items:
-            self.items.remove(item_name)
+    def remove(self, item):
+        if item in self.items:
+            self.items.remove(item)

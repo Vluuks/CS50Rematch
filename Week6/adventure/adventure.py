@@ -18,6 +18,7 @@ class Adventure():
         self.current_room = None
         self.play()
 
+
     def load_rooms(self, file_name):
         """
         Load rooms from filename.
@@ -53,12 +54,36 @@ class Adventure():
         f.close()
         return rooms
 
-    def load_items(self, file_name):
 
+    def load_items(self, file_name):
+        """
+        Loads items and puts them in the right rooms
+        """
         with open(file_name, "r") as f:
+
+            # again a rather ineffient way :D
+            contents = []
+            items = []
 
             # iterate over lines
             for line in f:
+                print(f"...{line}")
+
+                # append to contents or add to room
+                if line == "\n":
+                    print("zzzz")
+                    items.append(Item(contents[0], contents[1], contents[2]))
+                    contents = []
+                else:
+                    contents.append(line)
+
+        # now add them to the right rooms
+        for item in items:
+            print(item)
+            room_index = int(item.room_id) - 1
+            self.rooms[room_index].items.append(item)
+
+        f.close()
 
 
     def won(self):
@@ -68,6 +93,7 @@ class Adventure():
         """
         # TODO: Define the win condition for Adventure.
         return False
+
 
     def move(self, direction):
         """
@@ -103,9 +129,16 @@ class Adventure():
         Print stuff that can be found in the room
         """
 
-        # go over items in that room and print them
-        for item in a_room.items:
-            print(f"{item.name} {item.description}\n")
+        # check if there is anything
+        if len(a_room.items) > 0:
+
+            # go over items in that room and print them
+            for item in a_room.items:
+                print(item)
+
+        else:
+            print("\nNothing to be seen here...")
+
 
     def move_print(self, a_room):
         """
@@ -122,6 +155,63 @@ class Adventure():
         for i, option in enumerate(a_room.options):
             print(f"{i + 1}. {option[0]}")
 
+
+    def player_move(self, option):
+        """
+        Moves the player in the given direction.
+        """
+
+        print("\nMoving...")
+        print(f"To diection {option[0]} leading to room ID {option[1]}")
+
+        # change rooms
+        self.current_room = self.rooms[int(option[1]) - 1]
+
+        # print new info
+        self.move_print(self.current_room)
+
+
+    def player_take(self, item_name):
+        """
+        Attempts to take an item from the room.
+        """
+
+        # check in which room we are and if this room has this item
+        for item in self.current_room.items:
+
+            # if the name matches an item in the room
+            if item.name.strip() == item_name.strip():
+
+                # add to our inventory
+                self.inventory.add(item)
+
+                # remove it from the room
+                self.current_room.items.remove(item)
+                return
+
+        print("No such item exists!")
+
+
+    def player_drop(self, item_name):
+        """
+        Attempts to drop an item from inventory.
+        """
+        # check items in teh inventory
+        for item in self.inventory.items:
+
+            # if the name matches an item in the inventory
+            if item.name.strip() == item_name.strip():
+
+                # add to the room
+                self.current_room.items.append(item)
+
+                # remove it from the inventory
+                self.inventory.remove(item)
+                return
+
+        print("You do not have this item on you!")
+
+
     def play(self):
         """
         Play an Adventure game
@@ -129,18 +219,23 @@ class Adventure():
         print(f"Welcome, to the Adventure games.\n"
             "May the randomly generated numbers be ever in your favour.\n")
 
+        # starting info
         self.current_room = self.rooms[0]
+        self.move_print(self.current_room)
 
         # prompt until done
         while not self.won():
 
             # prompt for input
-            self.move_print(self.current_room)
             command = input("> ")
 
             # check if in valid moves
-            moves = set(["EAST", "WEST", "SOUTH", "IN", "OUT", "DOWN", "UP", "LOOK", HELP", "QUIT"])
-            if command in moves:
+            moves = set(["EAST", "WEST", "SOUTH", "IN", "OUT", "DOWN", "UP", "NORTH"])
+            other = set(["LOOK", "HELP", "QUIT"])
+            inv = set(["TAKE", "DROP"])
+
+            # if it's some kind of command
+            if command in other:
 
                 # quits the game
                 if command == "QUIT":
@@ -152,21 +247,32 @@ class Adventure():
                     self.help_print()
 
                 elif command == "LOOK":
-                    self.look_print()
+                    self.look_print(self.current_room)
 
-                # it's a movement command
                 else:
+                    print("Unkown command.")
+
+            # it's a movement command
+            elif command in moves:
 
                     # check with current location's options
                     for option in self.current_room.options:
 
                         # if the option is present for that room as  well
                         if command == option[0]:
-                            print("\nMoving...")
-                            print(option[1])
+                            self.player_move(option)
 
-                            # change rooms
-                            self.current_room = self.rooms[int(option[1]) - 1]
+            # it's an inventory related command
+            elif (command.split())[0] in inv:
+
+                # try to take the item
+                if (command.split())[0] == "TAKE":
+                    self.player_take((command.split())[1])
+
+                # try to drop the item
+                elif (command.split())[0] == "DROP":
+                    self.player_drop((command.split())[1])
+
 
             # command is not in the defined set
             else:

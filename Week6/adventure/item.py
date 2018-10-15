@@ -13,3 +13,6 @@ class Item(object):
         self.name = name
         self.description = description
         self.room_id = room_id
+
+    def __str__(self):
+        return f"{self.name} {self.description}"
