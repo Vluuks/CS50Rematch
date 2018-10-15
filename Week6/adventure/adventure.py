@@ -29,6 +29,9 @@ class Adventure():
             rooms = []
             line_content = []
             options = []
+            options_set = []
+            options_dict = {}
+
             moves_start = False
 
             # this is a very terrible implementation of parsing the file
@@ -37,19 +40,40 @@ class Adventure():
                 # check if regular info or movement options
                 # if it's an enter, make object and clean data
                 if line == "\n":
-                    rooms.append(Room(line_content[0], line_content[1], line_content[2], options))
+                    rooms.append(Room(line_content[0], line_content[1], line_content[2], options, options_dict, options_set))
                     line_content = []
                     options = []
+                    options_dict = {}
                     moves_start = False
                 # if it's info about the room
                 elif line != "-----\n" and not moves_start:
                     line_content.append(line)
                 # if it's moves info
                 elif line != "-----\n" and moves_start:
+
+                    # split into command name and rest
+                    command_name = (line.strip().split())[0]
+                    options_set.append(command_name)
+
+                    # the rest is either just a number or number/requireditem
+                    rest = (line.strip().split())[1]
+
+                    # add to the dictionary under that name
+                    if command_name in options_dict:
+                        options_dict[command_name].append(rest)
+                    else:
+                        options_dict[command_name] = []
+                        options_dict[command_name].append(rest)
+
                     options.append(line.strip().split())
                 # if it's the ----- line indicating the moves are about to follow
                 else:
                     moves_start = True
+
+        for room in rooms:
+            print(room.name)
+            for key in room.options_dict:
+                print(key, room.options_dict[key])
 
         f.close()
         return rooms
@@ -280,4 +304,4 @@ class Adventure():
 
 
 if __name__ == "__main__":
-    adventure = Adventure("Tiny")
+    adventure = Adventure("Small")
