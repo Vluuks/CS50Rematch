@@ -40,7 +40,7 @@ class Adventure():
                 # check if regular info or movement options
                 # if it's an enter, make object and clean data
                 if line == "\n":
-                    rooms.append(Room(line_content[0], line_content[1], line_content[2], options, options_dict, options_set))
+                    rooms.append(Room(line_content[0], line_content[1], line_content[2], options, options_dict, set(options_set)))
                     line_content = []
                     options = []
                     options_dict = {}
@@ -70,10 +70,14 @@ class Adventure():
                 else:
                     moves_start = True
 
+        # testing purposes
         for room in rooms:
             print(room.name)
+            print(room.options_set)
             for key in room.options_dict:
                 print(key, room.options_dict[key])
+
+
 
         f.close()
         return rooms
@@ -118,18 +122,44 @@ class Adventure():
 
     def move(self, direction):
         """
-        Moves to a different room in the specified direction.
+        Checks a move to see if it has a conditional and
+        performs that move if the user has the required item.
+        If the user does not have the item or there is no conditional,
+        perform the regular move instead.
         """
-        # check with options in room
-        for option in self.current_room.options:
 
-            # if the option is present for that room as  well
-            if command == option[0]:
-                print("\nMoving...")
-                print(option[1])
-                self.current_room = self.rooms[int(option[1]) - 1]
-                return self.current_room
-        pass
+        # grab options from dictionary for that direction
+        connections = self.current_room.options_dict[direction]
+
+        # assume no conditional
+        room_index = connections[0]
+
+        # if it has a 2nd it means there is also a conditional
+        if len(connections) == 2:
+            print("conditional exists")
+
+            # assume regular index for now
+            room_index = connections[1]
+
+            # obtain required item's name
+            room_req_item = connections[0].split("/")[1]
+
+            # if the user has the required item
+            if self.inventory.contains(room_req_item):
+
+                print("you have the required item")
+
+                # perform move with conditional
+                room_index = connections[0].split("/")[0]
+                new_room = self.rooms[int(room_index) - 1]
+                return new_room
+
+        # if we don't have the item or there is no 2nd element
+        # meaning there is no condition, just move to standard
+        print("you dont have the item so doing normal version")
+        new_room = self.rooms[int(room_index) - 1]
+        return new_room
+
 
     def help_print(self):
         """
@@ -174,22 +204,9 @@ class Adventure():
         print("Where do you want to go?")
 
         # list options
-        for i, option in enumerate(a_room.options):
+        for i, option in enumerate(a_room.options): # TODO DO FROM SET
             print(f"{i + 1}. {option[0]}")
 
-
-    def player_move(self, option):
-        """
-        Moves the player in the given direction.
-        """
-
-        print("\nMoving...")
-
-        # change rooms
-        self.current_room = self.rooms[int(option[1]) - 1]
-
-        # print new info
-        self.move_print(self.current_room)
 
 
     def player_take(self, item_name):
@@ -280,12 +297,13 @@ class Adventure():
             # it's a movement command
             elif command in moves:
 
-                    # check with current location's options
-                    for option in self.current_room.options:
+                    # check with current location's options if possible at all
+                    if command in self.current_room.options_set:
 
-                        # if the option is present for that room as  well
-                        if command == option[0]:
-                            self.player_move(option)
+                        # if so, use direction to perform movement
+                        # this reassigns the current room
+                        self.current_room = self.move(command)
+                        self.move_print(self.current_room)
 
             # it's an inventory related command
             elif (command.split())[0] in inv:
