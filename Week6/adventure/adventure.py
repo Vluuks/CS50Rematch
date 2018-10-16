@@ -74,15 +74,6 @@ class Adventure():
                 else:
                     moves_start = True
 
-        # testing purposes
-        for room in rooms:
-            print(room.name)
-            print(room.options_set)
-            for key in room.options_dict:
-                print(key, room.options_dict[key])
-
-
-
         f.close()
         return rooms
 
