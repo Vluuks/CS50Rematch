@@ -163,7 +163,6 @@ class Adventure():
 
         # get the room we are forced to go to
         room_index = a_room.options_dict["FORCED"][0]
-        print(room_index)
 
         # get new room
         if room_index != '0':
@@ -228,7 +227,7 @@ class Adventure():
         Prints options for that room.
         """
         print("Where do you want to go?")
-        for i, option in enumerate(a_room.options_set): # TODO DO FROM SET
+        for i, option in enumerate(a_room.options_set):
             print(f"{i + 1}. {option}")
 
 
