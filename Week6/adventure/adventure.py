@@ -16,7 +16,10 @@ class Adventure():
         self.load_items(f"data/{game}Items.txt")
         self.inventory = Inventory()
         self.current_room = None
-        self.play()
+
+        # define win conditions as winning room being the last
+        self.winning_room_id = self.rooms[-1].id
+        self.wonb = False
 
 
     def load_rooms(self, file_name):
@@ -43,6 +46,7 @@ class Adventure():
                     rooms.append(Room(line_content[0], line_content[1], line_content[2], options, options_dict, set(options_set)))
                     line_content = []
                     options = []
+                    options_set = []
                     options_dict = {}
                     moves_start = False
                 # if it's info about the room
@@ -114,10 +118,9 @@ class Adventure():
     def won(self):
         """
         Check if the game is won.
-        Returns a boolean.
+        Returns a boolean. What a magical function this is.
         """
-        # TODO: Define the win condition for Adventure.
-        return False
+        return self.wonb
 
 
     def move(self, direction):
@@ -136,7 +139,6 @@ class Adventure():
 
         # if it has a 2nd it means there is also a conditional
         if len(connections) == 2:
-            print("conditional exists")
 
             # assume regular index for now
             room_index = connections[1]
@@ -147,17 +149,43 @@ class Adventure():
             # if the user has the required item
             if self.inventory.contains(room_req_item):
 
-                print("you have the required item")
+                print(f"You use {room_req_item}")
 
                 # perform move with conditional
                 room_index = connections[0].split("/")[0]
                 new_room = self.rooms[int(room_index) - 1]
                 return new_room
 
+            else:
+                print(f"It seems like you need a {room_req_item} to go here...")
+
         # if we don't have the item or there is no 2nd element
         # meaning there is no condition, just move to standard
-        print("you dont have the item so doing normal version")
         new_room = self.rooms[int(room_index) - 1]
+        return new_room
+
+
+    def forced_move(self, a_room):
+        """
+        Performs forced move for the current room.
+        """
+
+        # get the room we are forced to go to
+        room_index = a_room.options_dict["FORCED"][0]
+        print(room_index)
+
+        # get new room
+        if room_index != '0':
+            new_room = self.rooms[int(room_index) - 1]
+        # we won or are dead
+        else:
+            if int(a_room.id) == self.winning_room_id: #TODO
+                self.won = True
+                print("Congratulations, you beat the game!")
+                quit()
+            else:
+                self.dead()
+
         return new_room
 
 
@@ -198,15 +226,19 @@ class Adventure():
         """
 
         # flavor
-        print("------------------")
-        print(a_room.name)
-        print(a_room.description)
+        print("--------------------------------")
+        print(f"[ {(a_room.name.strip()).upper()} ]")
+        print(a_room.description.strip())
+        print("--------------------------------")
+
+
+    def options_print(self, a_room):
+        """
+        Prints options for that room.
+        """
         print("Where do you want to go?")
-
-        # list options
-        for i, option in enumerate(a_room.options): # TODO DO FROM SET
-            print(f"{i + 1}. {option[0]}")
-
+        for i, option in enumerate(a_room.options_set): # TODO DO FROM SET
+            print(f"{i + 1}. {option}")
 
 
     def player_take(self, item_name):
@@ -254,6 +286,12 @@ class Adventure():
         print("\nYou do not have this item on you!")
 
 
+    def dead(self):
+        print("Unfortunately, you are dead.")
+        print("\nThanks for playing!")
+        quit()
+
+
     def play(self):
         """
         Play an Adventure game
@@ -264,6 +302,7 @@ class Adventure():
         # starting info
         self.current_room = self.rooms[0]
         self.move_print(self.current_room)
+        self.options_print(self.current_room)
 
         # prompt until done
         while not self.won():
@@ -305,21 +344,35 @@ class Adventure():
                         self.current_room = self.move(command)
                         self.move_print(self.current_room)
 
+                        # if the new room has a forced movement in its options
+                        if "FORCED" in self.current_room.options_set:
+                            self.current_room = self.forced_move(self.current_room)
+                            self.move_print(self.current_room)
+
+                        # list new options
+                        self.options_print(self.current_room)
+
             # it's an inventory related command
             elif (command.split())[0] in inv:
 
                 # try to take the item
-                if (command.split())[0] == "TAKE":
-                    self.player_take((command.split())[1])
+                if (command.split())[0] == "TAKE" and len(command.split()) > 1:
+                    self.player_take((command.split(' ', 1))[1])
 
                 # try to drop the item
-                elif (command.split())[0] == "DROP":
-                    self.player_drop((command.split())[1])
+                elif (command.split())[0] == "DROP" and len(command.split()) > 1:
+                    self.player_drop((command.split(' ', 1))[1])
 
-            # command is not in the defined set
+                # player likely didn't say what they wanted to pick up
+                else:
+                    print("To drop something or pick something up, specify the item like TAKE *ITEM*")
+
+
+            # command is not in the defined set whatsoever
             else:
                 print("\n⚠️ Invalid command!\n")
 
 
 if __name__ == "__main__":
     adventure = Adventure("Small")
+    adventure.play()
